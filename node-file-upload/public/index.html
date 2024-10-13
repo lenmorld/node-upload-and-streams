@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>File upload using Form action</h1>
+    <form action="/api/upload" method="post" enctype="multipart/form-data">
+        <!-- name must match MULTER_FILE_KEY -->
+        <input type="file" name="file" />
+        <p>
+            <input type="submit" />
+        </p>
+    </form>
+    <hr />
+    <h2>File upload using JS</h2>
+    <form id="form">
+        <input id="file-input" type="file" />
+        <button type="submit">Upload</button>
+    </form>
+    <h2>Video upload using JS</h2>
+    <form id="form-video">
+        <input id="video-input" type="file" />
+        <button type="submit">Select video</button>
+    </form>
+
+    <script src="/index.js"></script>
+</body>
+</html>
