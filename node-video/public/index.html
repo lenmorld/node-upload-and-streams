@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File upload</title>
+</head>
+<body>
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <h2>File upload using multer - no chunks</h2>
+        <input type="file" id="video" name="video"/>
+        <input type="submit" value="Upload" />
+    </form>
+</body>
+</html>

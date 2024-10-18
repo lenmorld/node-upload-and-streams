@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chunked Video Upload</title>
+</head>
+<body>
+  <h2>Upload Video in Chunks</h2>
+  <input type="file" id="videoFile" accept="video/*">
+  <br><br>
+  <button id="uploadBtn">Upload Video</button>
+  <p id="status">No upload started</p>
+  <progress id="uploadProgress" value="0" max="100" style="width: 100%;"></progress>
+
+  <script>
+    const uploadBtn = document.getElementById('uploadBtn');
+    const videoFileInput = document.getElementById('videoFile');
+    const statusText = document.getElementById('status');
+    const uploadProgress = document.getElementById('uploadProgress');
+    
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB
+
+    uploadBtn.addEventListener('click', async () => {
+      const file = videoFileInput.files[0];
+
+      if (!file) {
+        alert('Please select a video file to upload.');
+        return;
+      }
+
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      let uploadedChunks = 0;
+      
+      // Function to upload each chunk
+      const uploadChunk = (start) => {
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end); // Get a slice of the file (chunk)
+
+        const formData = new FormData();
+        formData.append('videoChunk', chunk);
+
+        // Use XMLHttpRequest to send the chunk to the server
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/upload', true);
+
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            uploadedChunks++;
+            uploadProgress.value = (uploadedChunks / totalChunks) * 100;
+
+            if (uploadedChunks < totalChunks) {
+              // Upload the next chunk
+              uploadChunk(start + CHUNK_SIZE);
+            } else {
+              statusText.textContent = 'Upload complete!';
+            }
+          } else {
+            statusText.textContent = 'Error during upload!';
+          }
+        };
+
+        xhr.onerror = function() {
+          statusText.textContent = 'Error during upload!';
+        };
+
+        // Send the chunk
+        xhr.send(formData);
+      };
+
+      // Start uploading from the beginning
+      uploadChunk(0);
+      statusText.textContent = 'Uploading...';
+    });
+  </script>
+</body>
+</html>
