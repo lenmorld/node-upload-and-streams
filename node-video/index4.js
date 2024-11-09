@@ -88,9 +88,48 @@ app.post('/upload', diskUpload.single('video'), (req, res) => {
     // -----------------------------
 })
 
+// chunked upload
+// temporarily store 10MB chunks in memory
+// then append to file using a stream (don't keep entire file in memory)
+app.post('/upload-chunk', memUpload.single('chunk'), (req, res) => {
+    console.log("YESH!")
+    const { originalname, chunkIndex, totalChunks } = req.body
+    const filePath = path.join(__dirname, 'uploads', originalname)
+
+    if (!req.file || !originalname || !chunkIndex || !totalChunks) {
+        return res.status(400).send('Invalid request')
+    }
+
+    // stream to file in append mode
+    const writeStream = fs.createWriteStream(filePath, { flags: 'a' })
+
+    console.log("chunk req.file.size: ", req.file.size)
+    console.log("chunk req.file.buffer.length: ", req.file.buffer.length)
+
+    writeStream.write(req.file.buffer)
+
+    writeStream.end(() => {
+        console.log(`Chunk ${chunkIndex} of ${totalChunks} uploaded`)
+
+        // form data is string, need to parse
+        if (parseInt(chunkIndex) + 1 === parseInt(totalChunks)) {
+            console.log(`All chunks uploaded successfully`)
+            res.status(200).send('File uploaded successfully');
+        } else {
+            res.status(200).send(`Chunk ${chunkIndex} uploaded`)
+        }
+    })
+
+    writeStream.on('error', (err) => {
+        console.error('Error writing chunk: ', err)
+        res.status(500).send('Error writing chunk')
+    })
+})
+
 // create uploads folder if it doesn't exist
-if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
-    fs.mkdirSync(path.join(__dirname, 'uploads'))
+const uploadsDir = path.join(__dirname, 'uploads')
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir)
 }
 
 app.listen(PORT, () => {
