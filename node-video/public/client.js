@@ -11,6 +11,7 @@ const uploadChunks = async (file, chunkSize) => {
 
     console.log(`Uploading file with size ${file.size} ${totalChunks} chunks`)
 
+    const uniqueFilename = `${Date.now()}-${file.name}`
     // debugger
 
     // 0-> 102 chunks
@@ -20,7 +21,7 @@ const uploadChunks = async (file, chunkSize) => {
         // ...
         // chunk 102: 0.4MB leftover (419430.4)
         
-        debugger
+        // debugger
         const start = i * chunkSize
         const end = Math.min(
             start + chunkSize, 
@@ -33,7 +34,8 @@ const uploadChunks = async (file, chunkSize) => {
 
         const formData = new FormData()
         formData.append('chunk', chunk)
-        formData.append('originalname', file.name)
+        // formData.append('originalname', file.name)
+        formData.append('originalname', uniqueFilename)
         // pass range to server
         formData.append('chunkIndex', i)
         formData.append('totalChunks', totalChunks)
